@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enes Ahmet Şereflican</title>
+  <meta name="description" content="Enes Ahmet Şereflican — Bilgisayar Mühendisliği öğrencisi, full-stack web geliştirici, gömülü sistemler hedefiyle çalışıyor." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <button id="theme-toggle" aria-label="Tema değiştir" title="Tema değiştir">
+    <span class="theme-icon-dark">[ dark ]</span>
+    <span class="theme-icon-light">[ light ]</span>
+  </button>
+
+  <main class="container">
+
+    <!-- HERO -->
+    <header class="hero">
+      <pre class="terminal" aria-hidden="true">
+<span class="t-prompt">enes@portfolio</span>:<span class="t-path">~</span>$ whoami
+<span class="t-out">&gt; Enes Ahmet Şereflican</span>
+<span class="t-out">&gt; Bilgisayar Mühendisliği Öğrencisi · Karabük Üniversitesi</span>
+<span class="t-out">&gt; Full-stack Web Geliştirme</span>
+<span class="t-prompt">enes@portfolio</span>:<span class="t-path">~</span>$ <span class="t-cursor">_</span></pre>
+
+      <h1 class="sr-only">Enes Ahmet Şereflican — Bilgisayar Mühendisliği Öğrencisi</h1>
+    </header>
+
+    <!-- ABOUT -->
+    <section class="section" id="about">
+      <h2 class="section-title"># hakkımda</h2>
+      <p class="about-text">
+        Karabük Üniversitesi Bilgisayar Mühendisliği bölümünde ikinci sınıf öğrencisiyim.
+        Şu anki yetkinliğim full-stack web geliştirme alanında; kendi tasarlayıp canlıya aldığım
+        turnuva yönetim sistemi en kapsamlı projem. Bunun yanında savunma sanayinde gömülü sistem
+        mühendisliği hedefiyle mikroişlemci mimarileri ve mikrodenetleyici kullanmadan çalışan
+        elektronik devre tasarımı üzerine kendimi geliştiriyorum. Makine öğrenmesinin günlük
+        hayata uygulanması da takip ettiğim alanlardan. Yazılım dışında basketbol oynuyorum.
+      </p>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="section" id="projects">
+      <h2 class="section-title"># projeler</h2>
+
+      <article class="project featured">
+        <header class="project-head">
+          <h3 class="project-title">Karabük Kamu Kurumları Bahar Futbol Turnuvası</h3>
+          <span class="project-tag">öne çıkan</span>
+        </header>
+        <p class="project-desc">
+          Kamu kurumları arasındaki futbol turnuvasının tüm yönetim ihtiyacını karşılayan,
+          canlı yayında olan bir web uygulaması. Takım/oyuncu yönetimi, çoklu admin sistemi,
+          belge yükleme, ilk 11 oluşturma, fikstür ve canlı puan durumu özellikleri var.
+          Tasarımdan deploya kadar tamamını tek başıma geliştirdim.
+        </p>
+        <div class="project-stack">
+          <span>Next.js 14</span>
+          <span>TypeScript</span>
+          <span>Supabase</span>
+          <span>Tailwind CSS</span>
+          <span>Vercel</span>
+        </div>
+        <div class="project-links">
+          <a href="https://turnuvaburada.com.tr" target="_blank" rel="noopener">canlı site →</a>
+          <a href="https://github.com/EneSereflican/karabukturnuvasitesi" target="_blank" rel="noopener">github →</a>
+        </div>
+      </article>
+
+      <article class="project">
+        <header class="project-head">
+          <h3 class="project-title">NeonEntropy</h3>
+        </header>
+        <p class="project-desc">
+          Tarayıcıda çalışan, JavaScript ile geliştirilmiş bir web oyunu.
+          Saf JS ile oyun mantığı, render ve etkileşim üzerine pratik.
+        </p>
+        <div class="project-stack">
+          <span>JavaScript</span>
+          <span>HTML5 Canvas</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/EneSereflican/NeonEntropy" target="_blank" rel="noopener">github →</a>
+        </div>
+      </article>
+
+      <article class="project">
+        <header class="project-head">
+          <h3 class="project-title">Kütüphane Randevu Sistemi</h3>
+        </header>
+        <p class="project-desc">
+          Spring Boot ile geliştirilen bir kütüphane randevu yönetim sistemi.
+          REST API tasarımı, katmanlı mimari ve Java ekosistemi üzerine bir çalışma.
+        </p>
+        <div class="project-stack">
+          <span>Java</span>
+          <span>Spring Boot</span>
+          <span>REST API</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/EneSereflican/library_springboot" target="_blank" rel="noopener">github →</a>
+        </div>
+      </article>
+
+      <article class="project">
+        <header class="project-head">
+          <h3 class="project-title">Raylib Tetris</h3>
+        </header>
+        <p class="project-desc">
+          C dili ve raylib kütüphanesi ile yazılmış klasik Tetris oyunu.
+          Low-level grafik programlama ve oyun döngüsü pratiği.
+        </p>
+        <div class="project-stack">
+          <span>C</span>
+          <span>raylib</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/EneSereflican/raylib-tetris-game" target="_blank" rel="noopener">github →</a>
+        </div>
+      </article>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="section" id="skills">
+      <h2 class="section-title"># yetkinlikler</h2>
+      <dl class="skills">
+        <div class="skill-row">
+          <dt>diller</dt>
+          <dd>TypeScript · JavaScript · Python · Java · C · SQL</dd>
+        </div>
+        <div class="skill-row">
+          <dt>frontend</dt>
+          <dd>React · Next.js · Tailwind CSS · HTML · CSS</dd>
+        </div>
+        <div class="skill-row">
+          <dt>backend</dt>
+          <dd>Node.js · Spring Boot · Supabase · PostgreSQL · REST API</dd>
+        </div>
+        <div class="skill-row">
+          <dt>araçlar</dt>
+          <dd>Git · GitHub · Vercel · VS Code · Linux</dd>
+        </div>
+        <div class="skill-row">
+          <dt>ilgi alanları</dt>
+          <dd>Gömülü sistemler · Mikroişlemci mimarileri · Devre tasarımı · Makine öğrenmesi</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- EDUCATION -->
+    <section class="section" id="education">
+      <h2 class="section-title"># eğitim</h2>
+      <div class="education-item">
+        <div class="edu-main">
+          <h3>Karabük Üniversitesi</h3>
+          <p>Bilgisayar Mühendisliği · Lisans</p>
+        </div>
+        <div class="edu-meta">2. sınıf</div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section" id="contact">
+      <h2 class="section-title"># iletişim</h2>
+      <ul class="contact-list">
+        <li>
+          <span class="c-label">email</span>
+          <a href="mailto:easereflican@gmail.com">easereflican@gmail.com</a>
+        </li>
+        <li>
+          <span class="c-label">github</span>
+          <a href="https://github.com/EneSereflican" target="_blank" rel="noopener">github.com/EneSereflican</a>
+        </li>
+        <li>
+          <span class="c-label">linkedin</span>
+          <a href="https://www.linkedin.com/in/mobiler/" target="_blank" rel="noopener">linkedin.com/in/mobiler</a>
+        </li>
+        <li>
+          <span class="c-label">konum</span>
+          <span>İstanbul, TR</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p>© 2026 Enes Ahmet Şereflican · <span class="footer-hint">try the console</span></p>
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
