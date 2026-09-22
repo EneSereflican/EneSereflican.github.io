@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Galaktik Hurda İmparatorluğu: Mobil</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@400;600&family=Nunito:wght@400;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
+
+        :root {
+            --bg-color: #1a1a24;
+            --panel-bg: rgba(30, 30, 40, 0.85);
+            --accent-1: #ff8c42;
+            --accent-2: #ff3c38;
+            --text-main: #f0f0f5;
+            --text-dim: #9aa;
+            --nav-bg: #121218;
+            --success: #4cd964;
+            --font-display: 'Teko', sans-serif;
+            --font-ui: 'Nunito', sans-serif;
+            --border-radius: 16px;
+        }
+
+        body.theme-1 { --bg-color: #0d1b2a; --panel-bg: rgba(27, 38, 59, 0.85); --accent-1: #00f0ff; --accent-2: #ff007f; }
+        body.theme-2 { --bg-color: #2b0f1a; --panel-bg: rgba(60, 20, 35, 0.85); --accent-1: #ffcf00; --accent-2: #ff3300; }
+        body.theme-3 { --bg-color: #0f2b1a; --panel-bg: rgba(20, 60, 35, 0.85); --accent-1: #39ff14; --accent-2: #0080ff; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            transition: background-color 1s ease;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-color);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: background 1s ease;
+        }
+
+        #topbar {
+            padding: 15px 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .stat-box {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        .stat-value { font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--accent-1); line-height: 1.1; }
+        .stat-ps { font-size: 10px; color: var(--success); }
+
+        #content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(0.95);
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 90px;
+        }
+
+        .tab-content.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        #tab-mine {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sector-title {
+            position: absolute;
+            top: 20px;
+            font-family: var(--font-display);
+            font-size: 28px;
+            color: var(--accent-2);
+            text-shadow: 0 0 10px var(--accent-2);
+            text-align: center;
+        }
+
+        #mine-target {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 30% 30%, var(--accent-1), var(--accent-2));
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 20px 20px 60px rgba(255,255,255,0.2);
+            cursor: pointer;
+            animation: float 6s ease-in-out infinite, pulseObject 3s infinite alternate;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        @keyframes pulseObject {
+            0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        }
+
+        .shake { animation: hitShake 0.1s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes hitShake {
+            0% { transform: translate(0) scale(0.95); }
+            25% { transform: translate(5px, 5px) scale(0.95); }
+            50% { transform: translate(-5px, -5px) scale(0.95); }
+            75% { transform: translate(5px, -5px) scale(0.95); }
+            100% { transform: translate(0) scale(1); }
+        }
+
+        .click-particle {
+            position: absolute;
+            pointer-events: none;
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px var(--accent-1);
+            z-index: 100;
+        }
+
+        .power-indicator {
+            margin-top: 30px;
+            background: var(--panel-bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .power-indicator span { color: var(--accent-1); font-weight: bold; }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 24px;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--accent-1);
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .market-card {
+            background: linear-gradient(135deg, var(--panel-bg), rgba(0,0,0,0.5));
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 1px solid var(--accent-1);
+            text-align: center;
+        }
+        .market-rate { font-family: var(--font-display); font-size: 32px; color: var(--accent-1); margin: 10px 0; }
+        .market-trend { font-size: 16px; padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,0.3); }
+        
+        .btn {
+            background: var(--accent-1);
+            color: #000;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-size: 20px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn:disabled { background: #333; color: #666; pointer-events: none; }
+
+        .buy-mode-selector {
+            display: flex;
+            gap: 5px;
+            background: rgba(0,0,0,0.3);
+            padding: 4px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .buy-mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-family: var(--font-display);
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .buy-mode-btn.active {
+            background: var(--accent-1);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .item-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .item-card {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .item-card:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
+        
+        .item-card.disabled { opacity: 0.5; filter: grayscale(0.5); }
+        .item-card.disabled:active { transform: none; background: var(--panel-bg); }
+        
+        .item-card.purchased-card { opacity: 0.4; border-color: var(--success); cursor: default; }
+        .item-card.purchased-card:active { transform: none; }
+        
+        .item-icon { font-size: 30px; background: rgba(0,0,0,0.3); width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .item-details { flex: 1; }
+        .item-name { font-weight: bold; font-size: 14px; margin-bottom: 2px; }
+        .item-desc { font-size: 11px; color: var(--text-dim); }
+        .item-cost { color: var(--accent-2); font-weight: bold; font-size: 12px; margin-top: 4px; }
+        .item-action { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .item-count { font-family: var(--font-display); font-size: 20px; color: var(--accent-1); }
+        
+        .buy-btn { background: transparent; border: 1px solid var(--accent-1); color: var(--accent-1); padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .buy-btn:disabled { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.4); cursor: not-allowed; }
+        .buy-btn.purchased { border-color: var(--success); color: var(--success); cursor: default; }
+
+        .prestige-container { text-align: center; padding: 20px 0; }
+        .prestige-icon { font-size: 60px; margin-bottom: 20px; animation: pulseObject 2s infinite alternate; }
+        .prestige-desc { font-size: 14px; color: var(--text-dim); margin-bottom: 30px; line-height: 1.5; }
+        .prestige-btn { background: linear-gradient(45deg, var(--accent-2), var(--accent-1)); color: #fff; font-size: 24px; padding: 15px; border-radius: var(--border-radius); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .prestige-btn:disabled { background: #333; color: #888; box-shadow: none; cursor: not-allowed; }
+        
+        .stage-indicator {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            color: var(--accent-1);
+        }
+
+        /* Casino Tasarımları */
+        .casino-tabs {
+            display: flex;
+            gap: 5px;
+            background: rgba(0,0,0,0.4);
+            padding: 6px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        .casino-tab-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-dim);
+            font-family: var(--font-display);
+            font-size: 18px;
+            padding: 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .casino-tab-btn.active {
+            background: var(--accent-1);
+            border-color: var(--accent-1);
+            color: #000;
+            font-weight: bold;
+        }
+        .casino-game-panel {
+            display: none;
+            background: var(--panel-bg);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .casino-game-panel.active { display: block; }
+        .casino-input-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            align-items: center;
+        }
+        .casino-input {
+            flex: 1;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--accent-1);
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-size: 20px;
+            text-align: center;
+        }
+
+        /* Blackjack Kartları ve Sadece Yeni Kart Animasyonu */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+            min-height: 90px;
+            align-items: center;
+            perspective: 1000px;
+        }
+        @keyframes dealCard {
+            0% { transform: translateY(-70px) translateX(40px) rotate(20deg) scale(0.8); opacity: 0; }
+            100% { transform: translateY(0) translateX(0) rotate(0deg) scale(1); opacity: 1; }
+        }
+        .playing-card {
+            background: linear-gradient(135deg, #ffffff, #e6e6e6);
+            color: #111;
+            width: 55px;
+            height: 80px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            border: 1px solid #ccc;
+            position: relative;
+        }
+        .playing-card.new-deal {
+            animation: dealCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .playing-card.red { color: #e60000; }
+        .playing-card.hidden-card {
+            background: linear-gradient(135deg, #1f253d, #0f1424);
+            color: var(--accent-1);
+            justify-content: center;
+            align-items: center;
+            font-family: var(--font-display);
+            font-size: 24px;
+            border: 1px solid var(--accent-1);
+        }
+
+        /* Yuvarlak Canvas Rulet Çarkı Ekranı */
+        .roulette-visual-area {
+            position: relative;
+            height: 240px;
+            background: #0d0f18;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .roulette-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .roulette-bet-btn {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: var(--font-display);
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .roulette-bet-btn.selected { border-color: var(--accent-1); background: rgba(255,140,66,0.2); }
+
+        /* Aviator Görsel Alanı */
+        .aviator-screen {
+            height: 140px;
+            background: #09090f;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .aviator-multiplier {
+            font-family: var(--font-display);
+            font-size: 48px;
+            color: var(--success);
+            text-shadow: 0 0 15px rgba(76,217,100,0.4);
+        }
+        .aviator-plane {
+            position: absolute;
+            font-size: 28px;
+            transition: transform 0.1s linear;
+        }
+
+        /* Modal Tasarımları */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-box {
+            background: var(--panel-bg);
+            border: 2px solid var(--accent-1);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255,140,66,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-title { font-family: var(--font-display); font-size: 26px; color: var(--accent-1); margin-bottom: 15px; }
+        .modal-text { font-size: 13px; color: var(--text-dim); margin-bottom: 15px; line-height: 1.4; }
+        
+        .daily-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .daily-card {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 10px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .daily-card.claimed { opacity: 0.4; border-color: var(--success); pointer-events: none; }
+        .daily-card.available { border-color: var(--accent-1); background: rgba(255,140,66,0.2); animation: pulseCard 1.5s infinite alternate; }
+        .daily-card.locked { opacity: 0.5; pointer-events: none; }
+        @keyframes pulseCard { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+        .daily-day { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
+        .daily-reward { font-family: var(--font-display); font-size: 16px; color: var(--accent-1); margin-top: 4px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #navbar {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            height: 70px;
+            background: var(--nav-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 20;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-dim);
+            cursor: pointer;
+            flex: 1;
+            padding: 10px 0;
+            transition: color 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item.active { color: var(--accent-1); }
+        .nav-icon { font-size: 20px; }
+        .nav-label { font-size: 9px; font-weight: bold; text-transform: uppercase; }
+
+        #toast-container {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 50;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(0,0,0,0.9);
+            border-left: 3px solid var(--accent-1);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            backdrop-filter: blur(5px);
+            animation: toastIn 0.3s forwards, toastOut 0.3s forwards 2.5s;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="topbar">
+        <div class="stat-box">
+            <div class="stat-label" id="lbl-scrap">Hurda</div>
+            <div class="stat-value" id="val-scrap">0</div>
+            <div class="stat-ps" id="ps-scrap">+0/s</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Kredi</div>
+            <div class="stat-value" id="val-credit">0</div>
+            <div class="stat-ps" style="visibility: hidden;">+0/s</div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <div id="content">
+        <!-- TAB 1: KAZAN -->
+        <div id="tab-mine" class="tab-content active">
+            <div class="sector-title" id="sector-name">Uzay Çöplüğü</div>
+            <div id="mine-target"></div>
+            <button class="btn" id="btn-overdrive" onclick="triggerOverdrive()" style="margin-top: 25px; background: linear-gradient(45deg, #ff3c38, #ff8c42); color: #fff; font-size: 16px; padding: 10px;">Aşırı Yükleme (Hazır)</button>
+            <div class="power-indicator">Tıklama Gücü: <span id="val-click-power">1</span></div>
+        </div>
+
+        <!-- TAB 2: TESİSLER -->
+        <div id="tab-build" class="tab-content">
+            <div class="market-card">
+                <div class="stat-label">Güncel Kur</div>
+                <div class="market-rate">1 <span id="lbl-scrap-market">Hurda</span> = <span id="market-rate">1.00</span> ₭</div>
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom: 15px;">
+                    <span class="market-trend" id="market-trend">Sabit</span>
+                </div>
+                <button class="btn" id="btn-sell">Tümünü Sat</button>
+            </div>
+
+            <div class="section-title">Otomasyon Tesisleri</div>
+            <div class="buy-mode-selector">
+                <button class="buy-mode-btn active" onclick="setBuyMode(1)">x1</button>
+                <button class="buy-mode-btn" onclick="setBuyMode(10)">x10</button>
+                <button class="buy-mode-btn" onclick="setBuyMode('MAX')">MAX</button>
+            </div>
+            <div class="item-list" id="buildings-container"></div>
+        </div>
+
+        <!-- TAB 3: GELİŞİM -->
+        <div id="tab-upgrade" class="tab-content">
+            <div class="section-title">Teknoloji Ağacı</div>
+            <div class="item-list" id="upgrades-container" style="margin-bottom: 30px;"></div>
+
+            <div class="section-title">Boyut Sıçraması</div>
+            <div class="prestige-container">
+                <div class="stage-indicator">Mevcut Seviye: <span id="stage-level">0</span></div>
+                <div class="prestige-icon" id="prestige-icon">🌌</div>
+                <div class="prestige-desc" id="prestige-desc">
+                    1 Milyon Krediye ulaştığında uzay-zamanı bükerek yeni bir sektöre geçebilirsin.<br><br>
+                    <strong>Her sıçrama:</strong><br>
+                    - Mekanı ve toplanan materyali değiştirir.<br>
+                    - Tıklama ve otomasyon hızına kalıcı <strong>x2 Çarpan</strong> ekler.<br>
+                    - Tüm mevcut birikim ve tesisleri sıfırlar.
+                </div>
+                <button class="btn prestige-btn" id="btn-prestige" disabled>Sıçrama İçin: 1M ₭</button>
+            </div>
+        </div>
+
+        <!-- TAB 4: GAZİNO -->
+        <div id="tab-casino" class="tab-content">
+            <div class="section-title">Galaktik Gazino 🎰</div>
+            <div class="casino-tabs">
+                <button class="casino-tab-btn active" onclick="switchCasinoTab('blackjack')">Blackjack</button>
+                <button class="casino-tab-btn" onclick="switchCasinoTab('roulette')">Rulet</button>
+                <button class="casino-tab-btn" onclick="switchCasinoTab('aviator')">Aviator</button>
+            </div>
+
+            <!-- Blackjack Paneli -->
+            <div id="casino-blackjack" class="casino-game-panel active">
+                <div style="font-size:13px; color:var(--text-dim); margin-bottom:5px;">Dağıtıcı (Kasa): <span id="bj-dealer-score">-</span></div>
+                <div class="cards-container" id="bj-dealer-cards"></div>
+                <div style="font-size:14px; font-weight:bold; color:var(--accent-1); margin: 10px 0;" id="bj-status">Bahis yatırın ve oyunu başlatın</div>
+                <div class="cards-container" id="bj-player-cards"></div>
+                <div style="font-size:13px; color:var(--text-dim); margin-top:5px;">Senin Skorun: <span id="bj-player-score">-</span></div>
+
+                <div class="casino-input-group">
+                    <input type="number" id="bj-bet" class="casino-input" value="100" min="1">
+                    <button class="btn" id="bj-start-btn" onclick="startBlackjack()" style="width: auto; padding: 10px 20px;">Dağıt</button>
+                </div>
+                <div style="display:flex; gap:10px;" id="bj-actions">
+                    <button class="btn" onclick="hitBlackjack()" id="bj-hit-btn" disabled style="background:#4cd964; color:#000;">Kart Çek</button>
+                    <button class="btn" onclick="standBlackjack()" id="bj-stand-btn" disabled style="background:#ff3c38; color:#fff;">Dur</button>
+                </div>
+            </div>
+
+            <!-- Rulet Paneli (Dönen Yuvarlak Canvas Çark) -->
+            <div id="casino-roulette" class="casino-game-panel">
+                <div style="font-size:15px; font-weight:bold; color:var(--accent-1); margin-bottom:10px;" id="roulette-result">Şansını Seç ve Çevir!</div>
+                
+                <div class="roulette-visual-area">
+                    <canvas id="roulette-canvas" width="220" height="220"></canvas>
+                </div>
+
+                <div class="roulette-board">
+                    <button class="roulette-bet-btn selected" onclick="selectRouletteBet('red')" id="rt-btn-red" style="border-color:#ff3c38; color:#ff3c38;">Kırmızı (2x)</button>
+                    <button class="roulette-bet-btn" onclick="selectRouletteBet('green')" id="rt-btn-green" style="border-color:#4cd964; color:#4cd964;">Yeşil 0 (35x)</button>
+                    <button class="roulette-bet-btn" onclick="selectRouletteBet('black')" id="rt-btn-black" style="border-color:#fff; color:#fff;">Siyah (2x)</button>
+                </div>
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom: 10px;">Seçilen Bahis: <span id="roulette-selected" style="color:var(--accent-1); font-weight:bold;">Kırmızı</span></div>
+                <div class="casino-input-group">
+                    <input type="number" id="roulette-bet" class="casino-input" value="100" min="1">
+                    <button class="btn" id="rt-spin-btn" onclick="spinRoulette()" style="width: auto; padding: 10px 20px;">Çarkı Çevir</button>
+                </div>
+            </div>
+
+            <!-- Aviator Paneli -->
+            <div id="casino-aviator" class="casino-game-panel">
+                <div class="aviator-screen">
+                    <div class="aviator-multiplier" id="aviator-mult">1.00x</div>
+                    <div class="aviator-plane" id="aviator-plane" style="left: 10px; bottom: 10px;">🚀</div>
+                </div>
+                <div class="casino-input-group">
+                    <input type="number" id="aviator-bet" class="casino-input" value="100" min="1">
+                    <button class="btn" id="aviator-btn" onclick="handleAviator()" style="width: auto; padding: 10px 20px;">Uçuşu Başlat</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: DİĞER (Menü) -->
+        <div id="tab-menu" class="tab-content">
+            <div class="section-title">İmparatorluk Menüsü</div>
+            <div class="item-list">
+                <div class="item-card" onclick="openDailyModal()">
+                    <div class="item-icon">🎁</div>
+                    <div class="item-details">
+                        <div class="item-name">7 Günlük Giriş Bonusu</div>
+                        <div class="item-desc">Ödüllerini talep et</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title" style="margin-top:20px;">Görevler & Başarılar</div>
+            <div class="item-list" id="achievements-container" style="margin-bottom:20px;"></div>
+
+            <div class="section-title">İmparatorluk Arşivi</div>
+            <div class="item-list" id="archive-container"></div>
+        </div>
+    </div>
+
+    <!-- 7 Günlük Bonus Modalı -->
+    <div class="modal-overlay" id="daily-modal" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-title">7 Günlük Ödül Takvimi</div>
+            <div class="modal-text">Her gün giriş yaparak sıradaki ödülünü topla!</div>
+            <div class="daily-grid" id="daily-grid-container"></div>
+            <button class="btn" onclick="closeDailyModal()" style="margin-top:10px;">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Alt Navigasyon (5 Sekme) -->
+    <div id="navbar">
+        <div class="nav-item active" onclick="switchTab('mine')">
+            <div class="nav-icon">⛏️</div>
+            <div class="nav-label">Kazan</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('build')">
+            <div class="nav-icon">🏭</div>
+            <div class="nav-label">Tesisler</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('upgrade')">
+            <div class="nav-icon">🚀</div>
+            <div class="nav-label">Gelişim</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('casino')">
+            <div class="nav-icon">🎰</div>
+            <div class="nav-label">Gazino</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('menu')">
+            <div class="nav-icon">📋</div>
+            <div class="nav-label">Menü</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- SES MOTORU ---
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playSound(type) {
+        try {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } else if (type === 'buy') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'success' || type === 'achievement') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(554.37, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        } catch(e) {}
+    }
+
+    const THEMES = [
+        { id: 0, class: '', name: 'Uzay Çöplüğü', resourceName: 'Hurda', icon: '🗑️' },
+        { id: 1, class: 'theme-1', name: 'Kristal Nebulası', resourceName: 'Kristal', icon: '💎' },
+        { id: 2, class: 'theme-2', name: 'Magma Çekirdeği', resourceName: 'Magma', icon: '🔥' },
+        { id: 3, class: 'theme-3', name: 'Uzaylı Harabesi', resourceName: 'Plazma', icon: '🧬' }
+    ];
+
+    const BUILDINGS = {
+        b1: { name: 'Toplayıcı Dron', icon: '🤖', baseCost: 15, baseProd: 0.5, mult: 1.15 },
+        b2: { name: 'Lazer Kesici', icon: '⚡', baseCost: 200, baseProd: 4, mult: 1.15 },
+        b3: { name: 'Madenci Gemisi', icon: '🛸', baseCost: 1500, baseProd: 20, mult: 1.15 },
+        b4: { name: 'Yörünge İstasyonu', icon: '🛰️', baseCost: 12000, baseProd: 100, mult: 1.15 },
+        b5: { name: 'Madde Dönüştürücü', icon: '⚛️', baseCost: 85000, baseProd: 500, mult: 1.15 }
+    };
+
+    const UPGRADES = {
+        u1: { name: 'Kinetik Eldiven', desc: 'Tıklama gücü x2', cost: 50, effect: (state) => state.clickMultiplier *= 2 },
+        u2: { name: 'Titanyum Matkap', desc: 'Tıklama gücü x5', cost: 400, effect: (state) => state.clickMultiplier *= 5 },
+        u3: { name: 'Yapay Zeka Pazar', desc: 'Fiyat asla 0.8 altına düşmez', cost: 2500, effect: (state) => state.marketFloor = 0.8 },
+        u4: { name: 'Aşırı Yükleme', desc: 'Tüm tesisler x1.5 hızlı', cost: 15000, effect: (state) => state.globalProdMult *= 1.5 },
+        u5: { name: 'Karanlık Madde Reaktörü', desc: 'Tüm tesisler x2 hızlı', cost: 100000, effect: (state) => state.globalProdMult *= 2 },
+        u6: { name: 'Oto-Tüccar AI', desc: 'Kur >= 1.80 olduğunda otomatik satar', cost: 250000, effect: (state) => state.aiTraderUnlocked = true }
+    };
+
+    const ACHIEVEMENTS = [
+        { id: 'a1', name: 'Çırak Hurdacısı', desc: 'Toplam 100 hurda topla', check: (s) => s.totalScrapCollected >= 100, reward: 50 },
+        { id: 'a2', name: 'Otomasyon Başlangıcı', desc: 'Toplam 10 Dron sahibi ol', check: (s) => s.buildings.b1 >= 10, reward: 200 },
+        { id: 'a3', name: 'Tüccar', desc: '1,000 Kredi biriktir', check: (s) => s.credit >= 1000 || s.totalCreditsEarned >= 1000, reward: 500 },
+        { id: 'a4', name: 'Boyut Gezgini', desc: 'İlk Boyut Sıçramasını gerçekleştir', check: (s) => s.stage >= 1, reward: 5000 },
+        { id: 'a5', name: 'Mega İmparatorluk', desc: 'Herhangi bir tesisten 50 adet üret', check: (s) => Object.values(s.buildings).some(val => val >= 50), reward: 20000 }
+    ];
+
+    const DAILY_REWARDS = [500, 1200, 3000, 7500, 15000, 35000, 100000];
+
+    let state = {
+        scrap: 0,
+        credit: 0,
+        stage: 0,
+        stageMultiplier: 1,
+        clickMultiplier: 1,
+        globalProdMult: 1,
+        marketFloor: 0.4,
+        buildings: { b1:0, b2:0, b3:0, b4:0, b5:0 },
+        upgrades: [],
+        achievements: [],
+        totalScrapCollected: 0,
+        totalCreditsEarned: 0,
+        totalClicks: 0,
+        totalTimePlayed: 0,
+        aiTraderUnlocked: false,
+        overdriveEndTime: 0,
+        overdriveCooldownTime: 0,
+        buyMode: 1,
+        claimedDays: [],
+        lastClaimDate: 0,
+        lastTime: Date.now()
+    };
+
+    let marketRate = 1.0;
+    let marketTrend = 0;
+    let lastMarketUpdate = 0;
+    let lastSaveTime = Date.now();
+
+    const formatNum = (num) => {
+        if (num === 0) return "0";
+        if (num < 10) return (Math.round(num * 10) / 10).toString();
+        if (num < 10000) return Math.floor(num).toString(); 
+        if (num < 1000000) return (num / 1000).toFixed(1) + 'K';
+        if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M';
+        return (num / 1000000000).toFixed(2) + 'B';
+    };
+
+    const getBuildingCostAndCount = (id, mode) => {
+        const b = BUILDINGS[id];
+        const currentCount = state.buildings[id];
+        
+        if (mode === 1) {
+            const cost = b.baseCost * Math.pow(b.mult, currentCount);
+            return { cost, count: 1 };
+        } else if (mode === 10) {
+            let totalCost = 0;
+            for (let i = 0; i < 10; i++) {
+                totalCost += b.baseCost * Math.pow(b.mult, currentCount + i);
+            }
+            return { cost: totalCost, count: 10 };
+        } else if (mode === 'MAX') {
+            let totalCost = 0;
+            let count = 0;
+            let tempCredit = state.credit;
+            let tempCount = currentCount;
+            
+            while (true) {
+                let nextCost = b.baseCost * Math.pow(b.mult, tempCount);
+                if (tempCredit >= nextCost) {
+                    tempCredit -= nextCost;
+                    totalCost += nextCost;
+                    count++;
+                    tempCount++;
+                    if (count >= 1000) break;
+                } else {
+                    break;
+                }
+            }
+            return { cost: totalCost > 0 ? totalCost : b.baseCost * Math.pow(b.mult, currentCount), count: count > 0 ? count : 1 };
+        }
+    };
+
+    const isOverdriveActive = () => Date.now() < state.overdriveEndTime;
+
+    const getClickPower = () => {
+        let base = 1 * state.clickMultiplier * state.stageMultiplier;
+        return isOverdriveActive() ? base * 3 : base;
+    };
+    
+    const getTotalProduction = () => {
+        let total = 0;
+        for(let key in state.buildings) {
+            total += state.buildings[key] * BUILDINGS[key].baseProd;
+        }
+        let prod = total * state.globalProdMult * state.stageMultiplier;
+        return isOverdriveActive() ? prod * 3 : prod;
+    };
+
+    const setBuyMode = (mode) => {
+        state.buyMode = mode;
+        document.querySelectorAll('.buy-mode-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        updateBuildingsUI();
+    };
+
+    const triggerOverdrive = () => {
+        const now = Date.now();
+        if (now < state.overdriveCooldownTime) return;
+        state.overdriveEndTime = now + 30000;
+        state.overdriveCooldownTime = now + 150000;
+        showToast('🚀 AŞIRI YÜKLENME AKTİF! (3x Üretim & Tıklama)');
+        playSound('achievement');
+        updateOverdriveUI();
+    };
+
+    const updateOverdriveUI = () => {
+        const btn = document.getElementById('btn-overdrive');
+        if (!btn) return;
+        const now = Date.now();
+        if (now < state.overdriveEndTime) {
+            const left = Math.ceil((state.overdriveEndTime - now) / 1000);
+            btn.disabled = true;
+            btn.innerText = `⚠️ AŞIRI YÜKLENME AKTİF (${left}s)`;
+        } else if (now < state.overdriveCooldownTime) {
+            const left = Math.ceil((state.overdriveCooldownTime - now) / 1000);
+            btn.disabled = true;
+            btn.innerText = `Soğuma Süresi (${left}s)`;
+        } else {
+            btn.disabled = false;
+            btn.innerText = `Aşırı Yükleme (Aktif Et)`;
+        }
+    };
+
+    const updateHeader = () => {
+        document.getElementById('val-scrap').innerText = formatNum(state.scrap);
+        document.getElementById('val-credit').innerText = formatNum(state.credit);
+        document.getElementById('val-click-power').innerText = formatNum(getClickPower());
+        
+        const prod = getTotalProduction();
+        document.getElementById('ps-scrap').innerText = `+${formatNum(prod)}/s`;
+    };
+
+    const initBuildings = () => {
+        const container = document.getElementById('buildings-container');
+        container.innerHTML = '';
+        for(let key in BUILDINGS) {
+            const b = BUILDINGS[key];
+            container.innerHTML += `
+                <div class="item-card" id="card-${key}" onclick="buyBuilding('${key}')">
+                    <div class="item-icon">${b.icon}</div>
+                    <div class="item-details">
+                        <div class="item-name">${b.name}</div>
+                        <div class="item-desc" id="desc-${key}">+0/s</div>
+                        <div class="item-cost" id="cost-${key}">0 ₭</div>
+                    </div>
+                    <div class="item-action">
+                        <div class="item-count" id="count-${key}">0</div>
+                        <button class="buy-btn" id="btn-${key}">Satın Al</button>
+                    </div>
+                </div>
+            `;
+        }
+    };
+
+    const updateBuildingsUI = () => {
+        for(let key in BUILDINGS) {
+            const b = BUILDINGS[key];
+            const { cost, count } = getBuildingCostAndCount(key, state.buyMode);
+            const canBuy = state.credit >= cost;
+            const currentProd = b.baseProd * state.globalProdMult * state.stageMultiplier;
+            
+            document.getElementById(`desc-${key}`).innerText = `+${formatNum(currentProd)}/s`;
+            let costText = formatNum(cost) + ' ₭';
+            if (state.buyMode === 10 || state.buyMode === 'MAX') {
+                costText = `(${count}x) ` + costText;
+            }
+            document.getElementById(`cost-${key}`).innerText = costText;
+            document.getElementById(`count-${key}`).innerText = state.buildings[key];
+            
+            const card = document.getElementById(`card-${key}`);
+            const btn = document.getElementById(`btn-${key}`);
+            
+            btn.innerText = state.buyMode === 1 ? 'Satın Al' : `${state.buyMode} Al`;
+
+            if (canBuy) {
+                card.classList.remove('disabled');
+                btn.disabled = false;
+            } else {
+                card.classList.add('disabled');
+                btn.disabled = true;
+            }
+        }
+    };
+
+    const initUpgrades = () => {
+        const container = document.getElementById('upgrades-container');
+        container.innerHTML = '';
+        for(let key in UPGRADES) {
+            const u = UPGRADES[key];
+            container.innerHTML += `
+                <div class="item-card" id="upg-card-${key}" onclick="buyUpgrade('${key}')">
+                    <div class="item-details">
+                        <div class="item-name">${u.name}</div>
+                        <div class="item-desc">${u.desc}</div>
+                        <div class="item-cost" id="upg-cost-${key}">${formatNum(u.cost)} ₭</div>
+                    </div>
+                    <div class="item-action">
+                        <button class="buy-btn" id="upg-btn-${key}">Satın Al</button>
+                    </div>
+                </div>
+            `;
+        }
+    };
+
+    const updateUpgradesUI = () => {
+        for(let key in UPGRADES) {
+            const u = UPGRADES[key];
+            const isBought = state.upgrades.includes(key);
+            const canBuy = state.credit >= u.cost && !isBought;
+            
+            const card = document.getElementById(`upg-card-${key}`);
+            const btn = document.getElementById(`upg-btn-${key}`);
+            const costEl = document.getElementById(`upg-cost-${key}`);
+            
+            if (isBought) {
+                card.classList.add('disabled', 'purchased-card');
+                btn.innerText = 'Alındı ✓';
+                btn.classList.add('purchased');
+                costEl.style.display = 'none';
+            } else {
+                card.classList.remove('purchased-card');
+                costEl.style.display = 'block';
+                if (canBuy) {
+                    card.classList.remove('disabled');
+                    btn.disabled = false;
+                } else {
+                    card.classList.add('disabled');
+                    btn.disabled = true;
+                }
+            }
+        }
+    };
+
+    const initAchievementsUI = () => {
+        const container = document.getElementById('achievements-container');
+        if (!container) return;
+        container.innerHTML = '';
+        ACHIEVEMENTS.forEach(ach => {
+            const isUnlocked = state.achievements.includes(ach.id);
+            container.innerHTML += `
+                <div class="item-card ${isUnlocked ? 'purchased-card' : ''}" id="ach-${ach.id}">
+                    <div class="item-icon">🏆</div>
+                    <div class="item-details">
+                        <div class="item-name">${ach.name}</div>
+                        <div class="item-desc">${ach.desc}</div>
+                        <div class="item-cost" style="color:var(--success);">Ödül: +${formatNum(ach.reward)} ₭</div>
+                    </div>
+                    <div class="item-action">
+                        <button class="buy-btn ${isUnlocked ? 'purchased' : ''}" disabled>${isUnlocked ? 'Tamamlandı ✓' : 'Kilitli'}</button>
+                    </div>
+                </div>
+            `;
+        });
+    };
+
+    const updateArchiveUI = () => {
+        const container = document.getElementById('archive-container');
+        if (!container) return;
+        const hours = Math.floor(state.totalTimePlayed / 3600);
+        const minutes = Math.floor((state.totalTimePlayed % 3600) / 60);
+        const seconds = Math.floor(state.totalTimePlayed % 60);
+        const timeStr = `${hours}s ${minutes}d ${seconds}s`;
+
+        container.innerHTML = `
+            <div class="item-card">
+                <div class="item-icon">⏱️</div>
+                <div class="item-details">
+                    <div class="item-name">Oynama Süresi</div>
+                    <div class="item-desc">Toplam aktif zaman</div>
+                </div>
+                <div class="item-action"><div class="item-count" style="font-size:16px;">${timeStr}</div></div>
+            </div>
+            <div class="item-card">
+                <div class="item-icon">🖱️</div>
+                <div class="item-details">
+                    <div class="item-name">Toplam Tıklama</div>
+                    <div class="item-desc">Madencilik hamleleri</div>
+                </div>
+                <div class="item-action"><div class="item-count" style="font-size:16px;">${formatNum(state.totalClicks || 0)}</div></div>
+            </div>
+            <div class="item-card">
+                <div class="item-icon">🗑️</div>
+                <div class="item-details">
+                    <div class="item-name">Toplam Toplanan Kaynak</div>
+                    <div class="item-desc">Tüm nesiller boyu</div>
+                </div>
+                <div class="item-action"><div class="item-count" style="font-size:16px;">${formatNum(state.totalScrapCollected)}</div></div>
+            </div>
+            <div class="item-card">
+                <div class="item-icon">💰</div>
+                <div class="item-details">
+                    <div class="item-name">Toplam Kazanılan Kredi</div>
+                    <div class="item-desc">Ticaret hacmi</div>
+                </div>
+                <div class="item-action"><div class="item-count" style="font-size:16px;">${formatNum(state.totalCreditsEarned)}</div></div>
+            </div>
+            <div class="item-card">
+                <div class="item-icon">🌌</div>
+                <div class="item-details">
+                    <div class="item-name">Boyut Sıçramaları</div>
+                    <div class="item-desc">Ulaşılan sektör seviyesi</div>
+                </div>
+                <div class="item-action"><div class="item-count" style="font-size:16px;">${state.stage}</div></div>
+            </div>
+        `;
+    };
+
+    const checkAchievements = () => {
+        ACHIEVEMENTS.forEach(ach => {
+            if (!state.achievements.includes(ach.id)) {
+                if (ach.check(state)) {
+                    state.achievements.push(ach.id);
+                    state.credit += ach.reward;
+                    state.totalCreditsEarned += ach.reward;
+                    showToast(`🏆 Başarım Açıldı: ${ach.name}! (+${formatNum(ach.reward)} ₭)`);
+                    playSound('achievement');
+                    initAchievementsUI();
+                }
+            }
+        });
+    };
+
+    const updateMarketUI = () => {
+        document.getElementById('market-rate').innerText = marketRate.toFixed(2);
+        const trendEl = document.getElementById('market-trend');
+        
+        if(marketTrend > 0) { trendEl.innerText = 'Yükselişte ↗'; trendEl.style.color = '#4cd964'; }
+        else if(marketTrend < 0) { trendEl.innerText = 'Düşüşte ↘'; trendEl.style.color = '#ff3c38'; }
+        else { trendEl.innerText = 'Sabit →'; trendEl.style.color = '#9aa'; }
+
+        const btnSell = document.getElementById('btn-sell');
+        btnSell.innerText = state.scrap > 0 ? `Sat (+${formatNum(state.scrap * marketRate)} ₭)` : 'Malzeme Yok';
+        btnSell.disabled = state.scrap <= 0;
+    };
+
+    const applyTheme = () => {
+        const themeIndex = state.stage % THEMES.length;
+        const theme = THEMES[themeIndex];
+        
+        if (document.body.className !== theme.class) {
+            document.body.className = theme.class;
+        }
+        
+        document.getElementById('sector-name').innerText = theme.name;
+        document.getElementById('lbl-scrap').innerText = theme.resourceName;
+        document.getElementById('lbl-scrap-market').innerText = theme.resourceName;
+        document.getElementById('stage-level').innerText = state.stage;
+        
+        const prestigeCost = 1000000 * Math.pow(10, state.stage);
+        const btn = document.getElementById('btn-prestige');
+        btn.innerText = `Sıçrama İçin: ${formatNum(prestigeCost)} ₭`;
+        btn.disabled = state.credit < prestigeCost;
+    };
+
+    const updateAllUI = () => {
+        updateHeader();
+        updateMarketUI();
+        updateBuildingsUI();
+        updateUpgradesUI();
+        updateOverdriveUI();
+        checkAchievements();
+        applyTheme();
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab && activeTab.id === 'tab-menu') {
+            initAchievementsUI();
+            updateArchiveUI();
+        }
+    };
+
+    const showToast = (msg) => {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerText = msg;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    };
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        
+        event.currentTarget.classList.add('active');
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+        if (tabId === 'menu') {
+            initAchievementsUI();
+            updateArchiveUI();
+        }
+        if (tabId === 'casino') {
+            setTimeout(() => drawRouletteWheel(currentWheelAngle), 50);
+        }
+    }
+
+    // --- 7 GÜNLÜK BONUS YÖNETİMİ ---
+    function openDailyModal() {
+        document.getElementById('daily-modal').style.display = 'flex';
+        renderDailyGrid();
+    }
+    function closeDailyModal() {
+        document.getElementById('daily-modal').style.display = 'none';
+    }
+
+    function renderDailyGrid() {
+        const container = document.getElementById('daily-grid-container');
+        container.innerHTML = '';
+        
+        const today = new Date().toDateString();
+        const nextDayIndex = state.claimedDays.length;
+        const lastClaimStr = state.lastClaimDate ? new Date(state.lastClaimDate).toDateString() : '';
+        const canClaimToday = lastClaimStr !== today;
+
+        for (let i = 0; i < 7; i++) {
+            let statusClass = 'locked';
+            let clickAction = '';
+            let label = `Gün ${i+1}`;
+
+            if (state.claimedDays.includes(i)) {
+                statusClass = 'claimed';
+                label = 'Alındı ✓';
+            } else if (i === nextDayIndex && canClaimToday) {
+                statusClass = 'available';
+                clickAction = `onclick="claimDailyDay(${i})"`;
+            } else if (i === nextDayIndex && !canClaimToday) {
+                statusClass = 'locked';
+                label = 'Yarın';
+            }
+
+            container.innerHTML += `
+                <div class="daily-card ${statusClass}" ${clickAction}>
+                    <div class="daily-day">${label}</div>
+                    <div class="daily-icon">💰</div>
+                    <div class="daily-reward">${formatNum(DAILY_REWARDS[i])}</div>
+                </div>
+            `;
+        }
+    }
+
+    window.claimDailyDay = (dayIndex) => {
+        const today = new Date().toDateString();
+        const lastClaimStr = state.lastClaimDate ? new Date(state.lastClaimDate).toDateString() : '';
+        if (lastClaimStr === today) {
+            showToast('Bugün zaten ödülünü aldın!');
+            return;
+        }
+
+        const reward = DAILY_REWARDS[dayIndex];
+        state.credit += reward;
+        state.totalCreditsEarned += reward;
+        state.claimedDays.push(dayIndex);
+        state.lastClaimDate = Date.now();
+
+        if (state.claimedDays.length >= 7) {
+            state.claimedDays = [];
+        }
+
+        playSound('success');
+        showToast(`🎁 Gün ${dayIndex+1} ödülü alındı: +${formatNum(reward)} ₭`);
+        renderDailyGrid();
+        updateAllUI();
+    };
+
+    // --- GAZİNO SİSTEMİ ---
+    function switchCasinoTab(gameId) {
+        document.querySelectorAll('.casino-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.casino-game-panel').forEach(p => p.classList.remove('active'));
+        
+        event.currentTarget.classList.add('active');
+        document.getElementById(`casino-${gameId}`).classList.add('active');
+
+        if (gameId === 'roulette') {
+            setTimeout(() => drawRouletteWheel(currentWheelAngle), 50);
+        }
+    }
+
+    // 1. Blackjack Mantığı (Sadece yeni çekilen kartlara animasyon)
+    let bjState = {
+        deck: [],
+        playerHand: [],
+        dealerHand: [],
+        bet: 0,
+        inGame: false
+    };
+    let lastRenderedPlayerLen = 0;
+    let lastRenderedDealerLen = 0;
+
+    function createDeck() {
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        let deck = [];
+        for (let s of suits) {
+            for (let v of values) {
+                deck.push({ suit: s, val: v });
+            }
+        }
+        for (let i = deck.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+    }
+
+    function getCardValue(hand) {
+        let sum = 0;
+        let aces = 0;
+        for (let card of hand) {
+            if (card.val === 'A') {
+                aces++;
+                sum += 11;
+            } else if (['K', 'Q', 'J', '10'].includes(card.val)) {
+                sum += 10;
+            } else {
+                sum += parseInt(card.val);
+            }
+        }
+        while (sum > 21 && aces > 0) {
+            sum -= 10;
+            aces--;
+        }
+        return sum;
+    }
+
+    function renderPlayerCards(hand) {
+        const container = document.getElementById('bj-player-cards');
+        container.innerHTML = '';
+        hand.forEach((card, idx) => {
+            const isRed = card.suit === '♥' || card.suit === '♦';
+            const isNew = idx >= lastRenderedPlayerLen;
+            container.innerHTML += `
+                <div class="playing-card ${isRed ? 'red' : ''} ${isNew ? 'new-deal' : ''}">
+                    <div>${card.val}</div>
+                    <div style="font-size:20px; text-align:center;">${card.suit}</div>
+                    <div style="text-align:right;">${card.val}</div>
+                </div>
+            `;
+        });
+        lastRenderedPlayerLen = hand.length;
+    }
+
+    function renderDealerCards(hand, hideFirst = false) {
+        const container = document.getElementById('bj-dealer-cards');
+        container.innerHTML = '';
+        hand.forEach((card, idx) => {
+            const isRed = card.suit === '♥' || card.suit === '♦';
+            const isNew = idx >= lastRenderedDealerLen;
+            if (hideFirst && idx === 0) {
+                container.innerHTML += `<div class="playing-card hidden-card ${isNew ? 'new-deal' : ''}">?</div>`;
+            } else {
+                container.innerHTML += `
+                    <div class="playing-card ${isRed ? 'red' : ''} ${isNew ? 'new-deal' : ''}">
+                        <div>${card.val}</div>
+                        <div style="font-size:20px; text-align:center;">${card.suit}</div>
+                        <div style="text-align:right;">${card.val}</div>
+                    </div>
+                `;
+            }
+        });
+        lastRenderedDealerLen = hand.length;
+    }
+
+    window.startBlackjack = () => {
+        const betInput = parseInt(document.getElementById('bj-bet').value) || 0;
+        if (betInput <= 0 || betInput > state.credit) {
+            showToast('Geçersiz bahis miktarı!');
+            return;
+        }
+
+        state.credit -= betInput;
+        bjState.bet = betInput;
+        bjState.deck = createDeck();
+        lastRenderedPlayerLen = 0;
+        lastRenderedDealerLen = 0;
+
+        bjState.playerHand = [bjState.deck.pop(), bjState.deck.pop()];
+        bjState.dealerHand = [bjState.deck.pop(), bjState.deck.pop()];
+        bjState.inGame = true;
+
+        document.getElementById('bj-start-btn').disabled = true;
+        document.getElementById('bj-bet').disabled = true;
+        document.getElementById('bj-hit-btn').disabled = false;
+        document.getElementById('bj-stand-btn').disabled = false;
+
+        renderDealerCards(bjState.dealerHand, true);
+        renderPlayerCards(bjState.playerHand);
+        
+        document.getElementById('bj-dealer-score').innerText = '?';
+        const pScore = getCardValue(bjState.playerHand);
+        document.getElementById('bj-player-score').innerText = pScore;
+        document.getElementById('bj-status').innerText = 'Kart Çek veya Dur';
+
+        if (pScore === 21) {
+            endBlackjack('blackjack');
+        }
+        updateHeader();
+    };
+
+    window.hitBlackjack = () => {
+        if (!bjState.inGame) return;
+        bjState.playerHand.push(bjState.deck.pop());
+        renderPlayerCards(bjState.playerHand);
+        const pScore = getCardValue(bjState.playerHand);
+        document.getElementById('bj-player-score').innerText = pScore;
+
+        if (pScore > 21) {
+            endBlackjack('bust');
+        } else if (pScore === 21) {
+            standBlackjack();
+        }
+    };
+
+    window.standBlackjack = () => {
+        if (!bjState.inGame) return;
+        renderDealerCards(bjState.dealerHand, false);
+        let dScore = getCardValue(bjState.dealerHand);
+        document.getElementById('bj-dealer-score').innerText = dScore;
+
+        const dealerPlay = setInterval(() => {
+            if (dScore < 17) {
+                bjState.dealerHand.push(bjState.deck.pop());
+                dScore = getCardValue(bjState.dealerHand);
+                renderDealerCards(bjState.dealerHand, false);
+                document.getElementById('bj-dealer-score').innerText = dScore;
+            } else {
+                clearInterval(dealerPlay);
+                const pScore = getCardValue(bjState.playerHand);
+                if (dScore > 21 || pScore > dScore) {
+                    endBlackjack('win');
+                } else if (pScore < dScore) {
+                    endBlackjack('lose');
+                } else {
+                    endBlackjack('push');
+                }
+            }
+        }, 600);
+    };
+
+    function endBlackjack(result) {
+        bjState.inGame = false;
+        document.getElementById('bj-start-btn').disabled = false;
+        document.getElementById('bj-bet').disabled = false;
+        document.getElementById('bj-hit-btn').disabled = true;
+        document.getElementById('bj-stand-btn').disabled = true;
+
+        const statusEl = document.getElementById('bj-status');
+        if (result === 'blackjack') {
+            const win = bjState.bet * 2.5;
+            state.credit += win;
+            statusEl.innerText = `BLACKJACK! +${formatNum(win)} ₭ Kazandın!`;
+            playSound('success');
+        } else if (result === 'win') {
+            const win = bjState.bet * 2;
+            state.credit += win;
+            statusEl.innerText = `KAZANDIN! +${formatNum(win)} ₭`;
+            playSound('success');
+        } else if (result === 'push') {
+            state.credit += bjState.bet;
+            statusEl.innerText = 'BERABERE (Bahis İade)';
+        } else if (result === 'bust') {
+            statusEl.innerText = 'PATLEDİN! (Kaybettin)';
+        } else {
+            statusEl.innerText = 'KASA KAZANDI!';
+        }
+        updateHeader();
+    }
+
+    // 2. Rulet Mantığı (Sağlam ve Kararlı Yuvarlak Canvas Çark)
+    let selectedRouletteChoice = 'red';
+    const wheelData = [
+        {num: 0, color: '#00aa44'},
+        {num: 32, color: '#d00000'}, {num: 15, color: '#1a1a1a'}, {num: 19, color: '#d00000'}, {num: 4, color: '#1a1a1a'},
+        {num: 21, color: '#d00000'}, {num: 2, color: '#1a1a1a'}, {num: 25, color: '#d00000'}, {num: 17, color: '#1a1a1a'},
+        {num: 34, color: '#d00000'}, {num: 6, color: '#1a1a1a'}, {num: 27, color: '#d00000'}, {num: 13, color: '#1a1a1a'},
+        {num: 36, color: '#d00000'}, {num: 11, color: '#1a1a1a'}, {num: 30, color: '#d00000'}, {num: 8, color: '#1a1a1a'},
+        {num: 23, color: '#d00000'}, {num: 10, color: '#1a1a1a'}, {num: 5, color: '#d00000'}, {num: 24, color: '#1a1a1a'},
+        {num: 16, color: '#d00000'}, {num: 33, color: '#1a1a1a'}, {num: 1, color: '#d00000'}, {num: 20, color: '#1a1a1a'},
+        {num: 14, color: '#d00000'}, {num: 31, color: '#1a1a1a'}, {num: 9, color: '#d00000'}, {num: 22, color: '#1a1a1a'},
+        {num: 18, color: '#d00000'}, {num: 29, color: '#1a1a1a'}, {num: 7, color: '#d00000'}, {num: 28, color: '#1a1a1a'},
+        {num: 12, color: '#d00000'}, {num: 35, color: '#1a1a1a'}, {num: 3, color: '#d00000'}, {num: 26, color: '#1a1a1a'}
+    ];
+    let currentWheelAngle = 0;
+
+    function drawRouletteWheel(angle = 0) {
+        const canvas = document.getElementById('roulette-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const radius = 95;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const sliceAngle = (Math.PI * 2) / wheelData.length;
+        
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        
+        wheelData.forEach((item, i) => {
+            const startAngle = i * sliceAngle - sliceAngle / 2;
+            const endAngle = startAngle + sliceAngle;
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, radius, startAngle, endAngle);
+            ctx.closePath();
+            ctx.fillStyle = item.color;
+            ctx.fill();
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            ctx.save();
+            ctx.rotate(startAngle + sliceAngle / 2);
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 10px Nunito, sans-serif';
+            ctx.fillText(item.num, radius - 10, 3);
+            ctx.restore();
+        });
+        
+        // Merkez göbek
+        ctx.beginPath();
+        ctx.arc(0, 0, 22, 0, Math.PI * 2);
+        ctx.fillStyle = '#111';
+        ctx.fill();
+        ctx.strokeStyle = '#ff8c42';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        ctx.restore();
+        
+        // Üst sabit işaretçi (İbrik / Pointer)
+        ctx.beginPath();
+        ctx.moveTo(cx, 2);
+        ctx.lineTo(cx - 6, 14);
+        ctx.lineTo(cx + 6, 14);
+        ctx.closePath();
+        ctx.fillStyle = '#ff3c38';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+
+    window.selectRouletteBet = (choice) => {
+        selectedRouletteChoice = choice;
+        ['red', 'green', 'black'].forEach(c => {
+            document.getElementById(`rt-btn-${c}`).classList.remove('selected');
+        });
+        document.getElementById(`rt-btn-${choice}`).classList.add('selected');
+        document.getElementById('roulette-selected').innerText = choice === 'red' ? 'Kırmızı' : (choice === 'green' ? 'Yeşil 0' : 'Siyah');
+    };
+
+    window.spinRoulette = () => {
+        const bet = parseInt(document.getElementById('roulette-bet').value) || 0;
+        if (bet <= 0 || bet > state.credit) {
+            showToast('Geçersiz bahis miktarı!');
+            return;
+        }
+
+        state.credit -= bet;
+        updateHeader();
+
+        const spinBtn = document.getElementById('rt-spin-btn');
+        spinBtn.disabled = true;
+        const resultEl = document.getElementById('roulette-result');
+        resultEl.innerText = 'Çark dönüyor... 🎡';
+
+        const winningIndex = Math.floor(Math.random() * wheelData.length);
+        const winningItem = wheelData[winningIndex];
+        const sliceAngle = (Math.PI * 2) / wheelData.length;
+        
+        const extraRotations = 6 * Math.PI * 2;
+        const targetAngle = extraRotations - (winningIndex * sliceAngle) - (Math.PI / 2);
+
+        let startTime = null;
+        const duration = 3000;
+
+        function animateSpin(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            const currentAngle = currentWheelAngle + (targetAngle - currentWheelAngle) * easeProgress;
+
+            drawRouletteWheel(currentAngle);
+
+            if (progress < 1) {
+                requestAnimationFrame(animateSpin);
+            } else {
+                currentWheelAngle = targetAngle % (Math.PI * 2);
+                
+                let won = false;
+                let multiplier = 0;
+                let colorName = winningItem.color === '#00aa44' ? 'green' : (winningItem.color === '#d00000' ? 'red' : 'black');
+
+                if (selectedRouletteChoice === colorName) {
+                    won = true;
+                    multiplier = colorName === 'green' ? 35 : 2;
+                }
+
+                if (won) {
+                    const payout = bet * multiplier;
+                    state.credit += payout;
+                    resultEl.innerText = `Sayı: ${winningItem.num} (${colorName.toUpperCase()}) - KAZANDIN! +${formatNum(payout)} ₭`;
+                    playSound('success');
+                } else {
+                    resultEl.innerText = `Sayı: ${winningItem.num} (${colorName.toUpperCase()}) - Kaybettin!`;
+                }
+
+                spinBtn.disabled = false;
+                updateHeader();
+            }
+        }
+
+        requestAnimationFrame(animateSpin);
+    };
+
+    // 3. Aviator Mantığı (Yavaşlatılmış Denge)
+    let aviatorState = {
+        active: false,
+        multiplier: 1.00,
+        crashPoint: 1.00,
+        bet: 0,
+        timer: null
+    };
+
+    window.handleAviator = () => {
+        const btn = document.getElementById('aviator-btn');
+        const betInput = document.getElementById('aviator-bet');
+
+        if (!aviatorState.active) {
+            const bet = parseInt(betInput.value) || 0;
+            if (bet <= 0 || bet > state.credit) {
+                showToast('Geçersiz bahis!');
+                return;
+            }
+
+            state.credit -= bet;
+            aviatorState.bet = bet;
+            aviatorState.active = true;
+            aviatorState.multiplier = 1.00;
+            
+            aviatorState.crashPoint = Math.max(1.02, parseFloat((0.98 / (1 - Math.random() * 0.90)).toFixed(2)));
+            
+            betInput.disabled = true;
+            btn.innerText = 'Nakit Çek (Cash Out)';
+            btn.style.background = '#4cd964';
+            btn.style.color = '#000';
+            updateHeader();
+
+            const multEl = document.getElementById('aviator-mult');
+            const planeEl = document.getElementById('aviator-plane');
+
+            aviatorState.timer = setInterval(() => {
+                aviatorState.multiplier += 0.005 + (aviatorState.multiplier * 0.008);
+                multEl.innerText = aviatorState.multiplier.toFixed(2) + 'x';
+                
+                let leftPos = Math.min(250, (aviatorState.multiplier - 1) * 120);
+                let bottomPos = Math.min(100, (aviatorState.multiplier - 1) * 60);
+                planeEl.style.transform = `translate(${leftPos}px, -${bottomPos}px)`;
+
+                if (aviatorState.multiplier >= aviatorState.crashPoint) {
+                    clearInterval(aviatorState.timer);
+                    aviatorState.active = false;
+                    multEl.innerText = 'ÇAKILDI! 💥';
+                    multEl.style.color = '#ff3c38';
+                    btn.innerText = 'Uçuşu Başlat';
+                    btn.style.background = 'var(--accent-1)';
+                    btn.style.color = '#000';
+                    betInput.disabled = false;
+                    setTimeout(() => { multEl.style.color = 'var(--success)'; }, 1500);
+                }
+            }, 100);
+
+        } else {
+            clearInterval(aviatorState.timer);
+            aviatorState.active = false;
+            const winnings = Math.floor(aviatorState.bet * aviatorState.multiplier);
+            state.credit += winnings;
+
+            const multEl = document.getElementById('aviator-mult');
+            const btn = document.getElementById('aviator-btn');
+            const betInput = document.getElementById('aviator-bet');
+
+            multEl.innerText = `BAŞARILI! +${formatNum(winnings)} ₭`;
+            playSound('success');
+
+            btn.innerText = 'Uçuşu Başlat';
+            btn.style.background = 'var(--accent-1)';
+            btn.style.color = '#000';
+            betInput.disabled = false;
+            updateHeader();
+        }
+    };
+
+    // --- OYUN DÖNGÜSÜ & KAYIT ---
+    const saveGame = () => {
+        state.lastTime = Date.now();
+        localStorage.setItem('mobileTycoonSave', JSON.stringify(state));
+    };
+
+    const loadGame = () => {
+        const saved = localStorage.getItem('mobileTycoonSave');
+        if(saved) {
+            const parsed = JSON.parse(saved);
+            state = { ...state, ...parsed };
+            if (!state.totalScrapCollected) state.totalScrapCollected = state.scrap;
+            if (!state.achievements) state.achievements = [];
+            if (!state.claimedDays) state.claimedDays = [];
+            state.upgrades.forEach(id => UPGRADES[id].effect(state));
+        }
+        
+        const now = Date.now();
+        const dt = (now - (state.lastTime || now)) / 1000;
+        if (dt > 10) {
+            const scrapGained = getTotalProduction() * dt;
+            state.scrap += scrapGained;
+            state.totalScrapCollected += scrapGained;
+            showOfflineModal(scrapGained);
+        }
+        state.lastTime = now;
+    };
+
+    const showOfflineModal = (scrapEarned) => {
+        if (scrapEarned <= 0) return;
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `
+            <div class="modal-box">
+                <div class="modal-title">Hoş Geldin Kaptan!</div>
+                <div class="modal-text">Sen yokken filon çalışmaya devam etti ve şu kadar kaynak topladı:</div>
+                <div class="modal-stat">+${formatNum(scrapEarned)} Hurda</div>
+                <button class="btn" onclick="this.closest('.modal-overlay').remove()">Topla ve Devam Et</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    };
+
+    const gameLoop = () => {
+        const now = Date.now();
+        const dt = (now - state.lastTime) / 1000;
+        state.lastTime = now;
+        
+        state.totalTimePlayed = (state.totalTimePlayed || 0) + dt;
+
+        const prod = getTotalProduction() * dt;
+        state.scrap += prod;
+        state.totalScrapCollected += prod;
+
+        if (state.aiTraderUnlocked && marketRate >= 1.80 && state.scrap > 0) {
+            const earned = state.scrap * marketRate;
+            state.credit += earned;
+            state.totalCreditsEarned += earned;
+            showToast(`🤖 Oto-Tüccar Satış: +${formatNum(earned)} ₭`);
+            state.scrap = 0;
+        }
+
+        if(now - lastMarketUpdate > 15000) {
+            const newRate = (Math.random() * (2.2 - state.marketFloor)) + state.marketFloor;
+            marketTrend = newRate > marketRate ? 1 : (newRate < marketRate ? -1 : 0);
+            marketRate = newRate;
+            lastMarketUpdate = now;
+        }
+
+        updateHeader();
+        updateMarketUI();
+        updateOverdriveUI();
+        
+        if (now - lastSaveTime > 2000) {
+            saveGame();
+            lastSaveTime = now;
+        }
+
+        requestAnimationFrame(gameLoop);
+    };
+
+    // --- TIKLAMA VE BUTON OLAYLARI ---
+    document.getElementById('mine-target').addEventListener('pointerdown', (e) => {
+        const el = e.currentTarget;
+        el.classList.remove('shake');
+        void el.offsetWidth;
+        el.classList.add('shake');
+
+        const power = getClickPower();
+        state.scrap += power;
+        state.totalScrapCollected += power;
+        state.totalClicks = (state.totalClicks || 0) + 1;
+        playSound('click');
+        
+        for(let i=0; i<3; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'click-particle';
+            particle.innerText = `+${formatNum(power)}`;
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 60 + 40;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance - 50;
+
+            particle.style.left = (e.clientX - 15) + 'px';
+            particle.style.top = (e.clientY - 15) + 'px';
+            particle.style.transition = 'all 0.6s cubic-bezier(0.1, 0.8, 0.3, 1)';
+            particle.style.opacity = '1';
+            
+            document.body.appendChild(particle);
+
+            requestAnimationFrame(() => {
+                particle.style.transform = `translate(${tx}px, ${ty}px) scale(0.5)`;
+                particle.style.opacity = '0';
+            });
+
+            setTimeout(() => particle.remove(), 600);
+        }
+        updateHeader();
+        checkAchievements();
+    });
+
+    document.getElementById('btn-sell').addEventListener('click', () => {
+        if(state.scrap <= 0) return;
+        const earned = state.scrap * marketRate;
+        state.credit += earned;
+        state.totalCreditsEarned += earned;
+        state.scrap = 0;
+        showToast(`${formatNum(earned)} ₭ kazanıldı!`);
+        playSound('buy');
+        updateAllUI();
+    });
+
+    window.buyBuilding = (id) => {
+        const { cost, count } = getBuildingCostAndCount(id, state.buyMode);
+        if(state.credit >= cost) {
+            state.credit -= cost;
+            state.buildings[id] += count;
+            playSound('buy');
+            updateAllUI();
+        } else {
+            showToast(`Yetersiz Kredi! (${formatNum(cost)} ₭ gerekiyor)`);
+        }
+    };
+
+    window.buyUpgrade = (id) => {
+        if (state.upgrades.includes(id)) return;
+        const u = UPGRADES[id];
+        
+        if(state.credit >= u.cost) {
+            state.credit -= u.cost;
+            state.upgrades.push(id);
+            u.effect(state);
+            showToast(`${u.name} araştırıldı!`);
+            playSound('success');
+            updateAllUI();
+        } else {
+            showToast(`Yetersiz Kredi! (${formatNum(u.cost)} ₭ gerekiyor)`);
+        }
+    };
+
+    document.getElementById('btn-prestige').addEventListener('click', () => {
+        const cost = 1000000 * Math.pow(10, state.stage);
+        if(state.credit >= cost) {
+            state.stage++;
+            state.stageMultiplier *= 2;
+            state.scrap = 0;
+            state.credit = 0;
+            state.buildings = { b1:0, b2:0, b3:0, b4:0, b5:0 };
+            state.upgrades = [];
+            state.clickMultiplier = 1;
+            state.globalProdMult = 1;
+            state.marketFloor = 0.4;
+            state.aiTraderUnlocked = false;
+            
+            playSound('achievement');
+            saveGame();
+            showToast('BOYUT SIÇRAMASI BAŞARILI!');
+            updateAllUI();
+            switchTab('mine');
+        }
+    });
+
+    // --- BAŞLAT ---
+    initBuildings();
+    initUpgrades();
+    initAchievementsUI();
+    loadGame();
+    updateAllUI();
+    requestAnimationFrame(gameLoop);
+
+</script>
+</body>
+</html>
